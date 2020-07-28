@@ -89,3 +89,7 @@ ENV/
 .ropeproject
 
 .idea
+
+# VS code stuff
+.vscode/
+Example/

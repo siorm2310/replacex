@@ -4,18 +4,18 @@ import re
 import sys
 
 
-def replace(filename, original, updated):
-    print("%s" % filename)
+def replace_all_words(filename, file_re, ORIGINAL_WORD, UPDATED_WORD):
+    with open(filename, "r") as f:
+        f_lines = f.readlines()
+        ORIGINAL_WORD_re = f"{ORIGINAL_WORD}"
+        new_lines = []
+        for line in f_lines:
+            new_line = re.sub(ORIGINAL_WORD_re, UPDATED_WORD, line)
+            new_lines.append(new_line)
 
-    fo = open(filename + ".bk", 'w')
-    fo.write(original)
-    fo.close()
-
-    fi = open(filename, 'w')
-    fi.write(updated)
-    fi.close()
-
-    os.remove(filename + ".bk")
+    with open(filename, "w") as f:
+        f.writelines(new_lines)
+    return
 
 
 def rep_folder(path, from_re, to_re, file_re):
@@ -25,10 +25,7 @@ def rep_folder(path, from_re, to_re, file_re):
             if re.search(file_re, filename):
                 infile = os.path.join(dirpath, filename)
                 try:
-                    original = open(infile).read()
-                    updated = re.sub(from_re, to_re, original, flags=re.M)
-                    if updated != original:
-                        replace(infile, original, updated)
+                    replace_all_words(infile, file_re, from_re, to_re)
                 except Exception as e:
                     print("! Error when reading file {} with exception {}".format(
                         infile, e))
@@ -41,10 +38,12 @@ def main():
         exit()
 
     path = os.getcwd()
-    from_regex = sys.argv[1]
-    to_regex = sys.argv[2]
-    filename_regex = r'^[^.].*\.(h|m|mm|md|cpp|java|yml|json|inl|def|txt|php|tpl|css' \
-                     r'|js|py|go)$' if nums == 3 else \
-        sys.argv[3]
+    ORIGINAL_WORD = sys.argv[1]
+    UPDATED_WORD = sys.argv[2]
+    filename_regex = r"[\w]+\.m$"
 
-    rep_folder(path, from_regex, to_regex, filename_regex)
+    rep_folder(path, ORIGINAL_WORD, UPDATED_WORD, filename_regex)
+
+
+if __name__ == "__main__":
+    main()
